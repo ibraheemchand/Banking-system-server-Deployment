@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bank Management System</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:     #0a1f44;
+      --blue:     #1a3a6b;
+      --accent:   #c9973a;
+      --accent2:  #e8b85a;
+      --light-bg: #f4f6fb;
+      --white:    #ffffff;
+      --border:   #dce2ee;
+      --text:     #1a1a2e;
+      --muted:    #6b7280;
+      --green:    #16a34a;
+      --red:      #dc2626;
+      --green-bg: #f0fdf4;
+      --red-bg:   #fef2f2;
+      --radius:   10px;
+      --shadow:   0 4px 20px rgba(10,31,68,.12);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--light-bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Top bar ── */
+    header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      height: 64px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.25);
+    }
+    header .logo {
+      width: 38px; height: 38px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: var(--white); font-weight: 700;
+      flex-shrink: 0;
+    }
+    header h1 { color: var(--white); font-size: 1.2rem; font-weight: 600; flex: 1; }
+    header .server-badge {
+      background: rgba(255,255,255,.12);
+      color: var(--accent2);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 20px;
+      padding: .25rem .8rem;
+      font-size: .75rem;
+      font-weight: 500;
+    }
+
+    /* ── Page wrapper ── */
+    .page { display: none; padding: 2rem; max-width: 1100px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    /* ── Landing ── */
+    #landing {
+      display: none;
+      padding: 3rem 2rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    #landing.active { display: block; }
+
+    .landing-hero {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .landing-hero h2 { font-size: 2rem; color: var(--navy); margin-bottom: .5rem; }
+    .landing-hero p  { color: var(--muted); font-size: 1.05rem; }
+
+    .panel-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media(max-width: 580px) { .panel-cards { grid-template-columns: 1fr; } }
+
+    .panel-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2.5rem 2rem;
+      cursor: pointer;
+      transition: transform .18s, box-shadow .18s, border-color .18s;
+      text-align: center;
+    }
+    .panel-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(10,31,68,.18);
+      border-color: var(--accent);
+    }
+    .panel-card .card-icon {
+      width: 64px; height: 64px;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 1.2rem;
+    }
+    .panel-card.admin .card-icon  { background: #e8f0fe; }
+    .panel-card.account .card-icon { background: #fef9e7; }
+    .panel-card h3 { font-size: 1.3rem; color: var(--navy); margin-bottom: .5rem; }
+    .panel-card p  { color: var(--muted); font-size: .9rem; line-height: 1.5; }
+
+    /* ── Back button ── */
+    .back-btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: none; border: none;
+      color: var(--blue); font-size: .9rem; font-weight: 600;
+      cursor: pointer; padding: 0; margin-bottom: 1.5rem;
+      transition: color .15s;
+    }
+    .back-btn:hover { color: var(--accent); }
+    .back-btn svg { width: 18px; height: 18px; }
+
+    /* ── Section heading ── */
+    .section-heading {
+      display: flex; align-items: center; gap: .75rem;
+      margin-bottom: 1.75rem;
+    }
+    .section-heading .icon-box {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+    }
+    .section-heading h2 { font-size: 1.5rem; color: var(--navy); }
+    .section-heading p  { color: var(--muted); font-size: .85rem; margin-top: .1rem; }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex; gap: .25rem;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: .35rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .tab-btn {
+      flex: 1; padding: .6rem 1rem;
+      background: none; border: none; border-radius: 7px;
+      font-size: .9rem; font-weight: 500; color: var(--muted);
+      cursor: pointer; transition: background .15s, color .15s;
+      display: flex; align-items: center; justify-content: center; gap: .4rem;
+    }
+    .tab-btn.active { background: var(--navy); color: var(--white); }
+    .tab-btn:not(.active):hover { background: var(--light-bg); color: var(--navy); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card-title {
+      font-size: 1rem; font-weight: 600; color: var(--navy);
+      margin-bottom: 1.25rem; padding-bottom: .75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: .5rem;
+    }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    thead tr { background: var(--navy); color: var(--white); }
+    thead th { padding: .75rem 1rem; text-align: left; font-weight: 600; }
+    thead th:last-child { text-align: right; }
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:hover { background: #f8faff; }
+    tbody td { padding: .7rem 1rem; }
+    tbody td:last-child { text-align: right; font-weight: 600; color: var(--green); }
+    .acc-badge {
+      display: inline-block;
+      background: #e8f0fe; color: var(--blue);
+      border-radius: 4px; padding: .15rem .5rem;
+      font-size: .78rem; font-weight: 600; font-family: monospace;
+    }
+    .empty-row td {
+      text-align: center; color: var(--muted);
+      padding: 2.5rem; font-size: .95rem;
+    }
+
+    /* ── Forms ── */
+    .form-grid { display: grid; gap: 1rem; }
+    .form-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+    @media(max-width: 560px) { .form-grid.cols-2 { grid-template-columns: 1fr; } }
+
+    .form-group { display: flex; flex-direction: column; gap: .4rem; }
+    .form-group label {
+      font-size: .82rem; font-weight: 600; color: var(--navy);
+      text-transform: uppercase; letter-spacing: .04em;
+    }
+    .form-group input, .form-group select {
+      padding: .65rem .85rem;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-size: .95rem;
+      color: var(--text);
+      background: var(--white);
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26,58,107,.1);
+    }
+    .form-group .hint { font-size: .78rem; color: var(--muted); }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: .4rem;
+      padding: .65rem 1.4rem;
+      border: none; border-radius: 7px;
+      font-size: .9rem; font-weight: 600;
+      cursor: pointer; transition: opacity .15s, transform .1s;
+    }
+    .btn:hover { opacity: .88; }
+    .btn:active { transform: scale(.97); }
+    .btn-primary   { background: var(--navy); color: var(--white); }
+    .btn-success   { background: var(--green); color: var(--white); }
+    .btn-accent    { background: var(--accent); color: var(--white); }
+    .btn-outline   {
+      background: none; color: var(--navy);
+      border: 1.5px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--navy); background: var(--light-bg); opacity: 1; }
+    .btn-sm { padding: .4rem .9rem; font-size: .82rem; }
+
+    /* ── Alerts ── */
+    .alert {
+      padding: .85rem 1rem;
+      border-radius: 8px;
+      font-size: .9rem; font-weight: 500;
+      margin-top: 1rem;
+      display: none;
+      align-items: center; gap: .5rem;
+    }
+    .alert.show { display: flex; }
+    .alert-success { background: var(--green-bg); color: var(--green); border: 1px solid #bbf7d0; }
+    .alert-error   { background: var(--red-bg);   color: var(--red);   border: 1px solid #fecaca; }
+
+    /* ── Account viewer cards ── */
+    .acc-cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+
+    .acc-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.4rem;
+      box-shadow: 0 2px 8px rgba(10,31,68,.07);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .acc-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .acc-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .9rem; }
+    .acc-card-num {
+      font-family: monospace; font-size: .8rem; font-weight: 700;
+      color: var(--blue); background: #e8f0fe;
+      padding: .2rem .55rem; border-radius: 5px;
+    }
+    .acc-card-name { font-size: 1.05rem; font-weight: 600; color: var(--navy); margin-bottom: .3rem; }
+    .acc-card-balance { font-size: 1.5rem; font-weight: 700; color: var(--green); }
+    .acc-card-label { font-size: .73rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+    /* ── Search ── */
+    .search-bar {
+      display: flex; gap: .75rem; margin-bottom: 1.5rem;
+    }
+    .search-bar input {
+      flex: 1; padding: .65rem 1rem;
+      border: 1.5px solid var(--border); border-radius: 7px;
+      font-size: .95rem; outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .search-bar input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26,58,107,.1);
+    }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-box {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      box-shadow: 0 2px 6px rgba(10,31,68,.06);
+    }
+    .stat-box .stat-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .stat-box .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--navy); margin-top: .2rem; }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 22px; height: 22px;
+      border: 3px solid var(--border);
+      border-top-color: var(--navy);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: inline-block;
+      margin: 2rem auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-row { text-align: center; padding: 2rem; }
+
+    /* ── Divider row (transfer arrow) ── */
+    .transfer-arrow {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; color: var(--accent); margin: -.1rem 0;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center; padding: 2rem;
+      color: var(--muted); font-size: .8rem;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ─────────────── HEADER ─────────────── -->
+<header>
+  <div class="logo">$</div>
+  <h1>Bank Management System</h1>
+  <span class="server-badge">localhost:8080</span>
+</header>
+
+<!-- ─────────────── LANDING ─────────────── -->
+<div id="landing" class="active">
+  <div class="landing-hero">
+    <h2>Welcome to BMS</h2>
+    <p>Select a panel to continue</p>
+  </div>
+
+  <div class="panel-cards">
+    <div class="panel-card admin" onclick="showPanel('admin-panel')">
+      <div class="card-icon">🛡️</div>
+      <h3>Admin Panel</h3>
+      <p>Create accounts, transfer funds between accounts, and view the full account registry.</p>
+    </div>
+    <div class="panel-card account" onclick="showPanel('account-panel')">
+      <div class="card-icon">💳</div>
+      <h3>Account Panel</h3>
+      <p>View account details and current balances across all registered accounts.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────── ADMIN PANEL ─────────────── -->
+<div id="admin-panel" class="page">
+  <button class="back-btn" onclick="showLanding()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M19 12H5M12 5l-7 7 7 7"/>
+    </svg>
+    Back to Home
+  </button>
+
+  <div class="section-heading">
+    <div class="icon-box" style="background:#e8f0fe;">🛡️</div>
+    <div>
+      <h2>Admin Panel</h2>
+      <p>Manage accounts and fund transfers</p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" id="admin-stats">
+    <div class="stat-box">
+      <div class="stat-label">Total Accounts</div>
+      <div class="stat-value" id="stat-total">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Total Funds</div>
+      <div class="stat-value" id="stat-funds">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Avg Balance</div>
+      <div class="stat-value" id="stat-avg">—</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('admin','view')">📋 View Accounts</button>
+    <button class="tab-btn"        onclick="switchTab('admin','create')">➕ Create Account</button>
+    <button class="tab-btn"        onclick="switchTab('admin','transfer')">↔️ Transfer Funds</button>
+  </div>
+
+  <!-- Tab: View Accounts -->
+  <div id="admin-tab-view" class="tab-panel active">
+    <div class="card">
+      <div class="card-title">
+        📋 All Accounts
+        <button class="btn btn-outline btn-sm" onclick="refreshAccounts()" style="margin-left:auto">
+          🔄 Refresh
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Account Number</th>
+              <th>Account Holder</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody id="accounts-table-body">
+            <tr class="loading-row"><td colspan="4"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Create Account -->
+  <div id="admin-tab-create" class="tab-panel">
+    <div class="card">
+      <div class="card-title">➕ Create New Account</div>
+      <form id="create-form" onsubmit="handleCreateAccount(event)">
+        <div class="form-grid cols-2">
+          <div class="form-group">
+            <label>Account Number</label>
+            <input id="new-acc-num" type="text" placeholder="e.g. ACC004" required />
+            <span class="hint">Must be unique across all accounts</span>
+          </div>
+          <div class="form-group">
+            <label>Account Holder Name</label>
+            <input id="new-holder" type="text" placeholder="e.g. Jane Doe" required />
+          </div>
+          <div class="form-group">
+            <label>Initial Balance ($)</label>
+            <input id="new-balance" type="number" min="0" step="0.01" placeholder="0.00" required />
+            <span class="hint">Cannot be negative</span>
+          </div>
+        </div>
+        <div style="margin-top:1.25rem; display:flex; gap:.75rem; align-items:center; flex-wrap:wrap;">
+          <button type="submit" class="btn btn-primary">Create Account</button>
+          <button type="button" class="btn btn-outline" onclick="document.getElementById('create-form').reset()">
+            Clear
+          </button>
+        </div>
+        <div id="create-alert" class="alert"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tab: Transfer Funds -->
+  <div id="admin-tab-transfer" class="tab-panel">
+    <div class="card">
+      <div class="card-title">↔️ Transfer Funds</div>
+      <form id="transfer-form" onsubmit="handleTransfer(event)">
+        <div class="form-grid cols-2">
+          <div class="form-group">
+            <label>From Account</label>
+            <select id="from-account" required>
+              <option value="">— Select sender —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>To Account</label>
+            <select id="to-account" required>
+              <option value="">— Select recipient —</option>
+            </select>
+          </div>
+        </div>
+        <div class="transfer-arrow">⬇️</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Amount to Transfer ($)</label>
+            <input id="transfer-amount" type="number" min="0.01" step="0.01" placeholder="0.00" required />
+            <span class="hint">Must not exceed the sender's current balance</span>
+          </div>
+        </div>
+        <div style="margin-top:1.25rem; display:flex; gap:.75rem; align-items:center; flex-wrap:wrap;">
+          <button type="submit" class="btn btn-success">Transfer Funds</button>
+          <button type="button" class="btn btn-outline"
+                  onclick="document.getElementById('transfer-form').reset(); populateTransferDropdowns()">
+            Reset
+          </button>
+        </div>
+        <div id="transfer-alert" class="alert"></div>
+      </form>
+    </div>
+
+    <!-- Live balance preview -->
+    <div class="card" id="balance-preview" style="display:none">
+      <div class="card-title">💡 Current Balances</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+        <div>
+          <div class="acc-card-label">Sender</div>
+          <div id="preview-from-name" style="font-weight:600; margin:.25rem 0;"></div>
+          <div id="preview-from-bal" class="acc-card-balance"></div>
+        </div>
+        <div>
+          <div class="acc-card-label">Recipient</div>
+          <div id="preview-to-name" style="font-weight:600; margin:.25rem 0;"></div>
+          <div id="preview-to-bal" class="acc-card-balance"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────── ACCOUNT PANEL ─────────────── -->
+<div id="account-panel" class="page">
+  <button class="back-btn" onclick="showLanding()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M19 12H5M12 5l-7 7 7 7"/>
+    </svg>
+    Back to Home
+  </button>
+
+  <div class="section-heading">
+    <div class="icon-box" style="background:#fef9e7;">💳</div>
+    <div>
+      <h2>Account Panel</h2>
+      <p>Browse and search all registered accounts</p>
+    </div>
+  </div>
+
+  <div class="search-bar">
+    <input id="search-input" type="text" placeholder="🔍  Search by name or account number…"
+           oninput="filterAccounts()" />
+    <button class="btn btn-outline" onclick="refreshAccountPanel()">🔄 Refresh</button>
+  </div>
+
+  <div id="acc-cards-container" class="acc-cards">
+    <div class="loading-row" style="grid-column:1/-1"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<footer>Bank Management System &nbsp;·&nbsp; C++ Backend + Vanilla JS Frontend &nbsp;·&nbsp; localhost:8080</footer>
+
+<!-- ─────────────── SCRIPTS ─────────────── -->
+<script>
+  /* ── State ── */
+  let allAccounts = [];
+
+  /* ── Navigation ── */
+  function showPanel(id) {
+    document.getElementById('landing').classList.remove('active');
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (id === 'admin-panel')   { refreshAccounts(); populateTransferDropdowns(); }
+    if (id === 'account-panel') { refreshAccountPanel(); }
+  }
+
+  function showLanding() {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('landing').classList.add('active');
+  }
+
+  /* ── Tab switching ── */
+  function switchTab(panel, tab) {
+    const prefix = panel + '-tab-';
+    document.querySelectorAll(`#${panel}-panel .tab-panel`)
+            .forEach(p => p.classList.remove('active'));
+    document.querySelectorAll(`#${panel}-panel .tab-btn`)
+            .forEach(b => b.classList.remove('active'));
+
+    document.getElementById(prefix + tab).classList.add('active');
+    const tabs  = document.querySelectorAll(`#${panel}-panel .tab-btn`);
+    const order = (panel === 'admin') ? ['view','create','transfer'] : [];
+    const idx   = order.indexOf(tab);
+    if (idx >= 0) tabs[idx].classList.add('active');
+
+    if (tab === 'transfer') populateTransferDropdowns();
+  }
+
+  /* ── Fetch accounts ── */
+  async function fetchAccounts() {
+    const res  = await fetch('/accounts');
+    allAccounts = await res.json();
+    return allAccounts;
+  }
+
+  /* ── Refresh admin table + stats ── */
+  async function refreshAccounts() {
+    const tbody = document.getElementById('accounts-table-body');
+    tbody.innerHTML = '<tr class="loading-row"><td colspan="4"><div class="spinner"></div></td></tr>';
+
+    try {
+      await fetchAccounts();
+      updateAdminStats();
+      renderAdminTable();
+    } catch {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="4">⚠️ Unable to reach server</td></tr>';
+    }
+  }
+
+  function updateAdminStats() {
+    const total   = allAccounts.length;
+    const funds   = allAccounts.reduce((s, a) => s + a.balance, 0);
+    const avg     = total ? funds / total : 0;
+    document.getElementById('stat-total').textContent = total;
+    document.getElementById('stat-funds').textContent = '$' + funds.toFixed(2);
+    document.getElementById('stat-avg').textContent   = '$' + avg.toFixed(2);
+  }
+
+  function renderAdminTable() {
+    const tbody = document.getElementById('accounts-table-body');
+    if (!allAccounts.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="4">No accounts yet. Create one in the ➕ tab.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = allAccounts.map((a, i) => `
+      <tr>
+        <td style="color:var(--muted);font-size:.82rem">${i + 1}</td>
+        <td><span class="acc-badge">${esc(a.accountNumber)}</span></td>
+        <td>${esc(a.holderName)}</td>
+        <td>$${a.balance.toFixed(2)}</td>
+      </tr>`).join('');
+  }
+
+  /* ── Populate transfer dropdowns ── */
+  async function populateTransferDropdowns() {
+    if (!allAccounts.length) {
+      try { await fetchAccounts(); } catch { return; }
+    }
+
+    const makeOptions = (excludeVal = '') =>
+      '<option value="">— Select —</option>' +
+      allAccounts.map(a =>
+        `<option value="${esc(a.accountNumber)}" ${a.accountNumber === excludeVal ? 'disabled' : ''}>
+          ${esc(a.accountNumber)} — ${esc(a.holderName)}  ($${a.balance.toFixed(2)})
+        </option>`
+      ).join('');
+
+    document.getElementById('from-account').innerHTML = makeOptions();
+    document.getElementById('to-account').innerHTML   = makeOptions();
+
+    document.getElementById('from-account').addEventListener('change', updateBalancePreview);
+    document.getElementById('to-account').addEventListener('change', updateBalancePreview);
+  }
+
+  function updateBalancePreview() {
+    const fromVal = document.getElementById('from-account').value;
+    const toVal   = document.getElementById('to-account').value;
+    const preview = document.getElementById('balance-preview');
+
+    if (!fromVal && !toVal) { preview.style.display = 'none'; return; }
+    preview.style.display = 'block';
+
+    const fromAcc = allAccounts.find(a => a.accountNumber === fromVal);
+    const toAcc   = allAccounts.find(a => a.accountNumber === toVal);
+
+    document.getElementById('preview-from-name').textContent = fromAcc ? fromAcc.holderName : '—';
+    document.getElementById('preview-from-bal').textContent  = fromAcc ? '$' + fromAcc.balance.toFixed(2) : '—';
+    document.getElementById('preview-to-name').textContent   = toAcc   ? toAcc.holderName   : '—';
+    document.getElementById('preview-to-bal').textContent    = toAcc   ? '$' + toAcc.balance.toFixed(2)   : '—';
+  }
+
+  /* ── Create account ── */
+  async function handleCreateAccount(e) {
+    e.preventDefault();
+    const accNum  = document.getElementById('new-acc-num').value.trim();
+    const name    = document.getElementById('new-holder').value.trim();
+    const balance = parseFloat(document.getElementById('new-balance').value);
+
+    try {
+      const res  = await fetch('/create-account', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ accountNumber: accNum, holderName: name, initialBalance: balance })
+      });
+      const data = await res.json();
+
+      if (data.status === 'ok') {
+        showAlert('create-alert', 'success', '✅ ' + data.message);
+        document.getElementById('create-form').reset();
+        await refreshAccounts();
+        await populateTransferDropdowns();
+      } else {
+        showAlert('create-alert', 'error', '❌ ' + data.message);
+      }
+    } catch {
+      showAlert('create-alert', 'error', '❌ Network error – is the server running?');
+    }
+  }
+
+  /* ── Transfer ── */
+  async function handleTransfer(e) {
+    e.preventDefault();
+    const fromAcc = document.getElementById('from-account').value;
+    const toAcc   = document.getElementById('to-account').value;
+    const amount  = parseFloat(document.getElementById('transfer-amount').value);
+
+    if (fromAcc === toAcc) {
+      showAlert('transfer-alert', 'error', '❌ Sender and recipient cannot be the same account.');
+      return;
+    }
+
+    try {
+      const res  = await fetch('/transfer', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ fromAccount: fromAcc, toAccount: toAcc, amount })
+      });
+      const data = await res.json();
+
+      if (data.status === 'ok') {
+        showAlert('transfer-alert', 'success', '✅ ' + data.message);
+        document.getElementById('transfer-form').reset();
+        await fetchAccounts();
+        updateAdminStats();
+        renderAdminTable();
+        await populateTransferDropdowns();
+        document.getElementById('balance-preview').style.display = 'none';
+      } else {
+        showAlert('transfer-alert', 'error', '❌ ' + data.message);
+      }
+    } catch {
+      showAlert('transfer-alert', 'error', '❌ Network error – is the server running?');
+    }
+  }
+
+  /* ── Account panel ── */
+  async function refreshAccountPanel() {
+    const container = document.getElementById('acc-cards-container');
+    container.innerHTML = '<div class="loading-row" style="grid-column:1/-1"><div class="spinner"></div></div>';
+    try {
+      await fetchAccounts();
+      renderAccCards(allAccounts);
+    } catch {
+      container.innerHTML = '<p style="color:var(--red);padding:1rem">⚠️ Unable to reach server.</p>';
+    }
+  }
+
+  function filterAccounts() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    const filtered = allAccounts.filter(a =>
+      a.holderName.toLowerCase().includes(q) ||
+      a.accountNumber.toLowerCase().includes(q)
+    );
+    renderAccCards(filtered);
+  }
+
+  function renderAccCards(list) {
+    const container = document.getElementById('acc-cards-container');
+    if (!list.length) {
+      container.innerHTML = '<p style="color:var(--muted);padding:1rem;grid-column:1/-1">No matching accounts found.</p>';
+      return;
+    }
+    container.innerHTML = list.map(a => `
+      <div class="acc-card">
+        <div class="acc-card-top">
+          <span class="acc-card-num">${esc(a.accountNumber)}</span>
+        </div>
+        <div class="acc-card-name">${esc(a.holderName)}</div>
+        <div class="acc-card-label">Current Balance</div>
+        <div class="acc-card-balance">$${a.balance.toFixed(2)}</div>
+      </div>`).join('');
+  }
+
+  /* ── Helpers ── */
+  function showAlert(id, type, msg) {
+    const el = document.getElementById(id);
+    el.className = 'alert alert-' + type + ' show';
+    el.textContent = msg;
+    setTimeout(() => { el.classList.remove('show'); }, 5000);
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+
+</body>
+</html>
