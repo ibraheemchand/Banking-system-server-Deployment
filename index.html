@@ -5,796 +5,734 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bank Management System</title>
   <style>
-    /* ── Reset & base ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --navy:     #0a1f44;
-      --blue:     #1a3a6b;
-      --accent:   #c9973a;
-      --accent2:  #e8b85a;
-      --light-bg: #f4f6fb;
-      --white:    #ffffff;
-      --border:   #dce2ee;
-      --text:     #1a1a2e;
-      --muted:    #6b7280;
-      --green:    #16a34a;
-      --red:      #dc2626;
-      --green-bg: #f0fdf4;
-      --red-bg:   #fef2f2;
-      --radius:   10px;
-      --shadow:   0 4px 20px rgba(10,31,68,.12);
+      --navy:    #0a1f44;
+      --blue:    #1a3a6b;
+      --accent:  #c9973a;
+      --light:   #f4f6fb;
+      --white:   #ffffff;
+      --border:  #dce2ee;
+      --text:    #1a1a2e;
+      --muted:   #6b7280;
+      --green:   #16a34a;
+      --red:     #dc2626;
+      --gbg:     #f0fdf4;
+      --rbg:     #fef2f2;
+      --r:       10px;
+      --sh:      0 4px 20px rgba(10,31,68,.12);
     }
 
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: var(--light-bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--light); color: var(--text); min-height: 100vh; }
 
-    /* ── Top bar ── */
+    /* ── Header ── */
     header {
       background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
-      padding: 0 2rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      height: 64px;
-      box-shadow: 0 2px 12px rgba(0,0,0,.25);
+      padding: 0 2rem; display: flex; align-items: center; gap: .9rem; height: 60px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.25); position: sticky; top: 0; z-index: 50;
     }
-    header .logo {
-      width: 38px; height: 38px;
-      background: var(--accent);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem; color: var(--white); font-weight: 700;
-      flex-shrink: 0;
-    }
-    header h1 { color: var(--white); font-size: 1.2rem; font-weight: 600; flex: 1; }
-    header .server-badge {
-      background: rgba(255,255,255,.12);
-      color: var(--accent2);
-      border: 1px solid rgba(255,255,255,.2);
-      border-radius: 20px;
-      padding: .25rem .8rem;
-      font-size: .75rem;
-      font-weight: 500;
-    }
+    .logo { width: 34px; height: 34px; background: var(--accent); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #fff; font-weight: 700; flex-shrink: 0; }
+    header h1 { color: #fff; font-size: 1.1rem; font-weight: 600; flex: 1; }
+    #header-user { display: none; align-items: center; gap: .6rem; }
+    #header-user .badge { background: rgba(255,255,255,.15); color: #e8b85a; border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: .2rem .75rem; font-size: .78rem; font-weight: 600; }
+    .logout-btn { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.25); color: #fff; padding: .3rem .9rem; border-radius: 6px; font-size: .82rem; cursor: pointer; transition: background .15s; }
+    .logout-btn:hover { background: rgba(255,255,255,.22); }
 
-    /* ── Page wrapper ── */
-    .page { display: none; padding: 2rem; max-width: 1100px; margin: 0 auto; }
+    /* ── Pages ── */
+    .page { display: none; padding: 2.5rem 1.5rem; max-width: 960px; margin: 0 auto; }
     .page.active { display: block; }
 
     /* ── Landing ── */
-    #landing {
-      display: none;
-      padding: 3rem 2rem;
-      max-width: 860px;
-      margin: 0 auto;
-    }
-    #landing.active { display: block; }
+    #landing { max-width: 780px; }
+    .hero { text-align: center; padding: 1.5rem 0 2.5rem; }
+    .hero h2 { font-size: 2rem; color: var(--navy); }
+    .hero p  { color: var(--muted); margin-top: .4rem; font-size: 1rem; }
+    .panel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media(max-width:560px) { .panel-grid { grid-template-columns: 1fr; } }
+    .pcard { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--r); box-shadow: var(--sh); padding: 2.5rem 2rem; cursor: pointer; text-align: center; transition: transform .18s, box-shadow .18s, border-color .18s; }
+    .pcard:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(10,31,68,.16); border-color: var(--accent); }
+    .pcard-icon { width: 60px; height: 60px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 1.1rem; }
+    .pcard h3 { font-size: 1.25rem; color: var(--navy); margin-bottom: .4rem; }
+    .pcard p  { color: var(--muted); font-size: .88rem; line-height: 1.55; }
 
-    .landing-hero {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-    .landing-hero h2 { font-size: 2rem; color: var(--navy); margin-bottom: .5rem; }
-    .landing-hero p  { color: var(--muted); font-size: 1.05rem; }
+    /* ── Login pages ── */
+    .login-wrap { max-width: 420px; margin: 2.5rem auto; background: var(--white); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--sh); overflow: hidden; }
+    .login-top { padding: 2rem 2rem 1.2rem; border-bottom: 1px solid var(--border); text-align: center; }
+    .login-top .icon { font-size: 2.5rem; margin-bottom: .6rem; }
+    .login-top h2 { font-size: 1.3rem; color: var(--navy); }
+    .login-top p  { color: var(--muted); font-size: .85rem; margin-top: .25rem; }
+    .login-body { padding: 1.75rem 2rem 2rem; }
+    .back-link { display: inline-flex; align-items: center; gap: .3rem; color: var(--blue); font-size: .85rem; font-weight: 600; cursor: pointer; border: none; background: none; margin-bottom: 1rem; transition: color .14s; }
+    .back-link:hover { color: var(--accent); }
 
-    .panel-cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-    @media(max-width: 580px) { .panel-cards { grid-template-columns: 1fr; } }
+    /* ── Form components ── */
+    .fg { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1rem; }
+    .fg label { font-size: .78rem; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: .04em; }
+    .fg input, .fg select { padding: .65rem .85rem; border: 1.5px solid var(--border); border-radius: 7px; font-size: .95rem; color: var(--text); background: var(--white); outline: none; transition: border-color .15s, box-shadow .15s; }
+    .fg input:focus, .fg select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,58,107,.1); }
+    .fg .hint { font-size: .76rem; color: var(--muted); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+    @media(max-width:520px) { .grid2 { grid-template-columns: 1fr; } }
 
-    .panel-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 2.5rem 2rem;
-      cursor: pointer;
-      transition: transform .18s, box-shadow .18s, border-color .18s;
-      text-align: center;
-    }
-    .panel-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 32px rgba(10,31,68,.18);
-      border-color: var(--accent);
-    }
-    .panel-card .card-icon {
-      width: 64px; height: 64px;
-      border-radius: 16px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 2rem;
-      margin: 0 auto 1.2rem;
-    }
-    .panel-card.admin .card-icon  { background: #e8f0fe; }
-    .panel-card.account .card-icon { background: #fef9e7; }
-    .panel-card h3 { font-size: 1.3rem; color: var(--navy); margin-bottom: .5rem; }
-    .panel-card p  { color: var(--muted); font-size: .9rem; line-height: 1.5; }
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: .35rem; padding: .65rem 1.3rem; border: none; border-radius: 7px; font-size: .9rem; font-weight: 600; cursor: pointer; transition: opacity .15s, transform .1s; }
+    .btn:active { transform: scale(.97); }
+    .btn:hover  { opacity: .87; }
+    .btn-primary { background: var(--navy);  color: #fff; }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-accent  { background: var(--accent); color: #fff; }
+    .btn-ghost   { background: none; color: var(--navy); border: 1.5px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--navy); background: var(--light); opacity: 1; }
+    .btn-full    { width: 100%; }
+    .btn-sm      { padding: .35rem .8rem; font-size: .8rem; }
 
-    /* ── Back button ── */
-    .back-btn {
-      display: inline-flex; align-items: center; gap: .4rem;
-      background: none; border: none;
-      color: var(--blue); font-size: .9rem; font-weight: 600;
-      cursor: pointer; padding: 0; margin-bottom: 1.5rem;
-      transition: color .15s;
-    }
-    .back-btn:hover { color: var(--accent); }
-    .back-btn svg { width: 18px; height: 18px; }
+    /* ── Admin panel ── */
+    .section-head { display: flex; align-items: center; gap: .7rem; margin-bottom: 1.5rem; }
+    .section-head .ic { width: 40px; height: 40px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .section-head h2 { font-size: 1.4rem; color: var(--navy); }
+    .section-head p  { font-size: .82rem; color: var(--muted); }
 
-    /* ── Section heading ── */
-    .section-heading {
-      display: flex; align-items: center; gap: .75rem;
-      margin-bottom: 1.75rem;
-    }
-    .section-heading .icon-box {
-      width: 42px; height: 42px;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem;
-    }
-    .section-heading h2 { font-size: 1.5rem; color: var(--navy); }
-    .section-heading p  { color: var(--muted); font-size: .85rem; margin-top: .1rem; }
+    /* ── Stats ── */
+    .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: .9rem; margin-bottom: 1.5rem; }
+    .stat  { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: .9rem 1.1rem; box-shadow: 0 2px 6px rgba(10,31,68,.06); }
+    .stat-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--navy); margin-top: .15rem; }
 
     /* ── Tabs ── */
-    .tabs {
-      display: flex; gap: .25rem;
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: .35rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,.06);
-    }
-    .tab-btn {
-      flex: 1; padding: .6rem 1rem;
-      background: none; border: none; border-radius: 7px;
-      font-size: .9rem; font-weight: 500; color: var(--muted);
-      cursor: pointer; transition: background .15s, color .15s;
-      display: flex; align-items: center; justify-content: center; gap: .4rem;
-    }
-    .tab-btn.active { background: var(--navy); color: var(--white); }
-    .tab-btn:not(.active):hover { background: var(--light-bg); color: var(--navy); }
+    .tabs { display: flex; gap: .2rem; background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: .3rem; margin-bottom: 1.4rem; box-shadow: 0 1px 4px rgba(0,0,0,.05); flex-wrap: wrap; }
+    .tab-btn { flex: 1; min-width: 110px; padding: .55rem .8rem; background: none; border: none; border-radius: 7px; font-size: .86rem; font-weight: 500; color: var(--muted); cursor: pointer; transition: background .14s, color .14s; white-space: nowrap; }
+    .tab-btn.active { background: var(--navy); color: #fff; }
+    .tab-btn:not(.active):hover { background: var(--light); color: var(--navy); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
 
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    /* ── Cards ── */
-    .card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-    .card-title {
-      font-size: 1rem; font-weight: 600; color: var(--navy);
-      margin-bottom: 1.25rem; padding-bottom: .75rem;
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: .5rem;
-    }
+    /* ── Card ── */
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); box-shadow: var(--sh); padding: 1.4rem; margin-bottom: 1.25rem; }
+    .card-title { font-size: .95rem; font-weight: 700; color: var(--navy); margin-bottom: 1.2rem; padding-bottom: .7rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .45rem; }
 
     /* ── Table ── */
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-    thead tr { background: var(--navy); color: var(--white); }
-    thead th { padding: .75rem 1rem; text-align: left; font-weight: 600; }
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    thead tr { background: var(--navy); color: #fff; }
+    thead th { padding: .7rem .9rem; text-align: left; font-weight: 600; }
     thead th:last-child { text-align: right; }
     tbody tr { border-bottom: 1px solid var(--border); }
     tbody tr:hover { background: #f8faff; }
-    tbody td { padding: .7rem 1rem; }
+    tbody td { padding: .65rem .9rem; }
     tbody td:last-child { text-align: right; font-weight: 600; color: var(--green); }
-    .acc-badge {
-      display: inline-block;
-      background: #e8f0fe; color: var(--blue);
-      border-radius: 4px; padding: .15rem .5rem;
-      font-size: .78rem; font-weight: 600; font-family: monospace;
-    }
-    .empty-row td {
-      text-align: center; color: var(--muted);
-      padding: 2.5rem; font-size: .95rem;
-    }
-
-    /* ── Forms ── */
-    .form-grid { display: grid; gap: 1rem; }
-    .form-grid.cols-2 { grid-template-columns: 1fr 1fr; }
-    @media(max-width: 560px) { .form-grid.cols-2 { grid-template-columns: 1fr; } }
-
-    .form-group { display: flex; flex-direction: column; gap: .4rem; }
-    .form-group label {
-      font-size: .82rem; font-weight: 600; color: var(--navy);
-      text-transform: uppercase; letter-spacing: .04em;
-    }
-    .form-group input, .form-group select {
-      padding: .65rem .85rem;
-      border: 1.5px solid var(--border);
-      border-radius: 7px;
-      font-size: .95rem;
-      color: var(--text);
-      background: var(--white);
-      transition: border-color .15s, box-shadow .15s;
-      outline: none;
-    }
-    .form-group input:focus, .form-group select:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(26,58,107,.1);
-    }
-    .form-group .hint { font-size: .78rem; color: var(--muted); }
-
-    /* ── Buttons ── */
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      gap: .4rem;
-      padding: .65rem 1.4rem;
-      border: none; border-radius: 7px;
-      font-size: .9rem; font-weight: 600;
-      cursor: pointer; transition: opacity .15s, transform .1s;
-    }
-    .btn:hover { opacity: .88; }
-    .btn:active { transform: scale(.97); }
-    .btn-primary   { background: var(--navy); color: var(--white); }
-    .btn-success   { background: var(--green); color: var(--white); }
-    .btn-accent    { background: var(--accent); color: var(--white); }
-    .btn-outline   {
-      background: none; color: var(--navy);
-      border: 1.5px solid var(--border);
-    }
-    .btn-outline:hover { border-color: var(--navy); background: var(--light-bg); opacity: 1; }
-    .btn-sm { padding: .4rem .9rem; font-size: .82rem; }
+    .tag { display: inline-block; background: #e8f0fe; color: var(--blue); border-radius: 4px; padding: .1rem .45rem; font-size: .75rem; font-weight: 600; font-family: monospace; }
+    .empty-row td { text-align: center; color: var(--muted); padding: 2rem; }
 
     /* ── Alerts ── */
-    .alert {
-      padding: .85rem 1rem;
-      border-radius: 8px;
-      font-size: .9rem; font-weight: 500;
-      margin-top: 1rem;
-      display: none;
-      align-items: center; gap: .5rem;
-    }
+    .alert { padding: .75rem .9rem; border-radius: 8px; font-size: .88rem; font-weight: 500; margin-top: .85rem; display: none; align-items: center; gap: .5rem; }
     .alert.show { display: flex; }
-    .alert-success { background: var(--green-bg); color: var(--green); border: 1px solid #bbf7d0; }
-    .alert-error   { background: var(--red-bg);   color: var(--red);   border: 1px solid #fecaca; }
+    .a-ok  { background: var(--gbg); color: var(--green); border: 1px solid #bbf7d0; }
+    .a-err { background: var(--rbg); color: var(--red);   border: 1px solid #fecaca; }
 
-    /* ── Account viewer cards ── */
-    .acc-cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    /* ── User panel ── */
+    .balance-card { background: linear-gradient(135deg, var(--navy) 0%, #1e4a8a 100%); border-radius: 14px; padding: 1.8rem 2rem; color: #fff; margin-bottom: 1.5rem; box-shadow: 0 6px 24px rgba(10,31,68,.25); }
+    .bc-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .07em; opacity: .7; }
+    .bc-name  { font-size: 1.2rem; font-weight: 700; margin: .3rem 0; }
+    .bc-num   { font-family: monospace; font-size: .82rem; background: rgba(255,255,255,.12); display: inline-block; padding: .15rem .5rem; border-radius: 4px; margin-bottom: 1rem; }
+    .bc-bal-label { font-size: .75rem; opacity: .7; }
+    .bc-balance   { font-size: 2.4rem; font-weight: 800; color: #e8b85a; margin-top: .1rem; }
 
-    .acc-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.25rem 1.4rem;
-      box-shadow: 0 2px 8px rgba(10,31,68,.07);
-      transition: transform .15s, box-shadow .15s;
-    }
-    .acc-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-    .acc-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .9rem; }
-    .acc-card-num {
-      font-family: monospace; font-size: .8rem; font-weight: 700;
-      color: var(--blue); background: #e8f0fe;
-      padding: .2rem .55rem; border-radius: 5px;
-    }
-    .acc-card-name { font-size: 1.05rem; font-weight: 600; color: var(--navy); margin-bottom: .3rem; }
-    .acc-card-balance { font-size: 1.5rem; font-weight: 700; color: var(--green); }
-    .acc-card-label { font-size: .73rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    /* ── Acc cards (account panel) ── */
+    .acc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 1rem; }
+    .ac { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 1.2rem; box-shadow: 0 2px 8px rgba(10,31,68,.07); transition: transform .15s, box-shadow .15s; }
+    .ac:hover { transform: translateY(-2px); box-shadow: var(--sh); }
+    .ac-num  { font-family: monospace; font-size: .77rem; font-weight: 700; color: var(--blue); background: #e8f0fe; padding: .15rem .45rem; border-radius: 4px; display: inline-block; margin-bottom: .6rem; }
+    .ac-name { font-size: 1rem; font-weight: 600; color: var(--navy); }
+    .ac-bl   { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: .6rem; }
+    .ac-bal  { font-size: 1.45rem; font-weight: 700; color: var(--green); }
 
-    /* ── Search ── */
-    .search-bar {
-      display: flex; gap: .75rem; margin-bottom: 1.5rem;
-    }
-    .search-bar input {
-      flex: 1; padding: .65rem 1rem;
-      border: 1.5px solid var(--border); border-radius: 7px;
-      font-size: .95rem; outline: none;
-      transition: border-color .15s, box-shadow .15s;
-    }
-    .search-bar input:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(26,58,107,.1);
-    }
-
-    /* ── Stats row ── */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .stat-box {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem 1.2rem;
-      box-shadow: 0 2px 6px rgba(10,31,68,.06);
-    }
-    .stat-box .stat-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
-    .stat-box .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--navy); margin-top: .2rem; }
-
-    /* ── Spinner ── */
-    .spinner {
-      width: 22px; height: 22px;
-      border: 3px solid var(--border);
-      border-top-color: var(--navy);
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      display: inline-block;
-      margin: 2rem auto;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .loading-row { text-align: center; padding: 2rem; }
-
-    /* ── Divider row (transfer arrow) ── */
-    .transfer-arrow {
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; color: var(--accent); margin: -.1rem 0;
-    }
-
-    /* ── Footer ── */
-    footer {
-      text-align: center; padding: 2rem;
-      color: var(--muted); font-size: .8rem;
-      margin-top: 2rem;
-    }
+    /* ── Transfer arrow ── */
+    .t-arrow { text-align: center; font-size: 1.3rem; color: var(--accent); margin: .1rem 0; }
   </style>
 </head>
-
 <body>
 
-<!-- ─────────────── HEADER ─────────────── -->
+<!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
 <header>
   <div class="logo">$</div>
   <h1>Bank Management System</h1>
-  <span class="server-badge">localhost:8080</span>
+  <div id="header-user">
+    <span class="badge" id="header-badge"></span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
 </header>
 
-<!-- ─────────────── LANDING ─────────────── -->
-<div id="landing" class="active">
-  <div class="landing-hero">
+<!-- ═══════════════════════════ LANDING ══════════════════════════ -->
+<div id="landing" class="page active">
+  <div class="hero">
     <h2>Welcome to BMS</h2>
-    <p>Select a panel to continue</p>
+    <p>Choose your login type to continue</p>
   </div>
-
-  <div class="panel-cards">
-    <div class="panel-card admin" onclick="showPanel('admin-panel')">
-      <div class="card-icon">🛡️</div>
-      <h3>Admin Panel</h3>
-      <p>Create accounts, transfer funds between accounts, and view the full account registry.</p>
+  <div class="panel-grid">
+    <div class="pcard" onclick="showPage('admin-login')">
+      <div class="pcard-icon" style="background:#e8f0fe;">🛡️</div>
+      <h3>Admin Login</h3>
+      <p>Create accounts, manage transfers, and change user passwords.</p>
     </div>
-    <div class="panel-card account" onclick="showPanel('account-panel')">
-      <div class="card-icon">💳</div>
-      <h3>Account Panel</h3>
-      <p>View account details and current balances across all registered accounts.</p>
+    <div class="pcard" onclick="showPage('user-login')">
+      <div class="pcard-icon" style="background:#fef9e7;">💳</div>
+      <h3>Account Login</h3>
+      <p>View your balance and transfer funds to other accounts.</p>
     </div>
   </div>
 </div>
 
-<!-- ─────────────── ADMIN PANEL ─────────────── -->
-<div id="admin-panel" class="page">
-  <button class="back-btn" onclick="showLanding()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-      <path d="M19 12H5M12 5l-7 7 7 7"/>
-    </svg>
-    Back to Home
-  </button>
+<!-- ═══════════════════════════ ADMIN LOGIN ══════════════════════ -->
+<div id="admin-login" class="page">
+  <div class="login-wrap">
+    <div class="login-top">
+      <div class="icon">🛡️</div>
+      <h2>Admin Login</h2>
+      <p>Enter the admin password to continue</p>
+    </div>
+    <div class="login-body">
+      <button class="back-link" onclick="showPage('landing')">← Back</button>
+      <form onsubmit="doAdminLogin(event)">
+        <div class="fg">
+          <label>Admin Password</label>
+          <input id="admin-pw" type="password" placeholder="Enter password" required autofocus />
+          <span class="hint">Default: admin123</span>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Login as Admin</button>
+        <div id="admin-login-alert" class="alert"></div>
+      </form>
+    </div>
+  </div>
+</div>
 
-  <div class="section-heading">
-    <div class="icon-box" style="background:#e8f0fe;">🛡️</div>
+<!-- ═══════════════════════════ USER LOGIN ═══════════════════════ -->
+<div id="user-login" class="page">
+  <div class="login-wrap">
+    <div class="login-top">
+      <div class="icon">💳</div>
+      <h2>Account Login</h2>
+      <p>Enter your account number and password</p>
+    </div>
+    <div class="login-body">
+      <button class="back-link" onclick="showPage('landing')">← Back</button>
+      <form onsubmit="doUserLogin(event)">
+        <div class="fg">
+          <label>Account Number</label>
+          <input id="user-acc-num" type="text" placeholder="e.g. ACC001" required />
+        </div>
+        <div class="fg">
+          <label>Password</label>
+          <input id="user-pw" type="password" placeholder="Enter password" required />
+          <span class="hint">Demo: ACC001 / alice123 &nbsp;·&nbsp; ACC002 / bob123</span>
+        </div>
+        <button type="submit" class="btn btn-success btn-full">Login to Account</button>
+        <div id="user-login-alert" class="alert"></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ ADMIN PANEL ══════════════════════ -->
+<div id="admin-panel" class="page">
+  <div class="section-head">
+    <div class="ic" style="background:#e8f0fe;">🛡️</div>
     <div>
       <h2>Admin Panel</h2>
-      <p>Manage accounts and fund transfers</p>
+      <p>Full account management access</p>
     </div>
   </div>
 
   <!-- Stats -->
-  <div class="stats-row" id="admin-stats">
-    <div class="stat-box">
-      <div class="stat-label">Total Accounts</div>
-      <div class="stat-value" id="stat-total">—</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-label">Total Funds</div>
-      <div class="stat-value" id="stat-funds">—</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-label">Avg Balance</div>
-      <div class="stat-value" id="stat-avg">—</div>
-    </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Accounts</div><div class="stat-value" id="st-count">—</div></div>
+    <div class="stat"><div class="stat-label">Total Funds</div><div class="stat-value" id="st-funds">—</div></div>
+    <div class="stat"><div class="stat-label">Avg Balance</div><div class="stat-value" id="st-avg">—</div></div>
   </div>
 
   <!-- Tabs -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('admin','view')">📋 View Accounts</button>
-    <button class="tab-btn"        onclick="switchTab('admin','create')">➕ Create Account</button>
-    <button class="tab-btn"        onclick="switchTab('admin','transfer')">↔️ Transfer Funds</button>
+    <button class="tab-btn active" onclick="aTab('view')">📋 View Accounts</button>
+    <button class="tab-btn"       onclick="aTab('create')">➕ Create Account</button>
+    <button class="tab-btn"       onclick="aTab('transfer')">↔️ Transfer</button>
+    <button class="tab-btn"       onclick="aTab('chpw')">🔑 Change Password</button>
   </div>
 
   <!-- Tab: View Accounts -->
-  <div id="admin-tab-view" class="tab-panel active">
+  <div id="at-view" class="tab-pane active">
     <div class="card">
-      <div class="card-title">
-        📋 All Accounts
-        <button class="btn btn-outline btn-sm" onclick="refreshAccounts()" style="margin-left:auto">
-          🔄 Refresh
-        </button>
+      <div class="card-title">📋 All Accounts
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="adminLoadAccounts()">🔄 Refresh</button>
       </div>
-      <div class="table-wrap">
+      <div class="tbl-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Account Number</th>
-              <th>Account Holder</th>
-              <th>Balance</th>
-            </tr>
-          </thead>
-          <tbody id="accounts-table-body">
-            <tr class="loading-row"><td colspan="4"><div class="spinner"></div></td></tr>
-          </tbody>
+          <thead><tr><th>#</th><th>Account No.</th><th>Holder Name</th><th>Balance</th></tr></thead>
+          <tbody id="acc-tbody"><tr class="empty-row"><td colspan="4">Loading…</td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 
   <!-- Tab: Create Account -->
-  <div id="admin-tab-create" class="tab-panel">
+  <div id="at-create" class="tab-pane">
     <div class="card">
       <div class="card-title">➕ Create New Account</div>
-      <form id="create-form" onsubmit="handleCreateAccount(event)">
-        <div class="form-grid cols-2">
-          <div class="form-group">
+      <form onsubmit="doCreateAccount(event)">
+        <div class="grid2">
+          <div class="fg">
             <label>Account Number</label>
-            <input id="new-acc-num" type="text" placeholder="e.g. ACC004" required />
-            <span class="hint">Must be unique across all accounts</span>
+            <input id="ca-num" type="text" placeholder="e.g. ACC004" required />
+            <span class="hint">Must be unique</span>
           </div>
-          <div class="form-group">
+          <div class="fg">
             <label>Account Holder Name</label>
-            <input id="new-holder" type="text" placeholder="e.g. Jane Doe" required />
+            <input id="ca-name" type="text" placeholder="e.g. Jane Doe" required />
           </div>
-          <div class="form-group">
+          <div class="fg">
             <label>Initial Balance ($)</label>
-            <input id="new-balance" type="number" min="0" step="0.01" placeholder="0.00" required />
-            <span class="hint">Cannot be negative</span>
+            <input id="ca-bal" type="number" min="0" step="0.01" placeholder="0.00" required />
+          </div>
+          <div class="fg">
+            <label>Account Password</label>
+            <input id="ca-pw" type="password" placeholder="Set login password" required />
+            <span class="hint">User will use this to login</span>
           </div>
         </div>
-        <div style="margin-top:1.25rem; display:flex; gap:.75rem; align-items:center; flex-wrap:wrap;">
+        <div style="display:flex;gap:.7rem;margin-top:.5rem;flex-wrap:wrap">
           <button type="submit" class="btn btn-primary">Create Account</button>
-          <button type="button" class="btn btn-outline" onclick="document.getElementById('create-form').reset()">
+          <button type="button" class="btn btn-ghost"
+                  onclick="['ca-num','ca-name','ca-bal','ca-pw'].forEach(id=>document.getElementById(id).value='')">
             Clear
           </button>
         </div>
-        <div id="create-alert" class="alert"></div>
+        <div id="ca-alert" class="alert"></div>
       </form>
     </div>
   </div>
 
-  <!-- Tab: Transfer Funds -->
-  <div id="admin-tab-transfer" class="tab-panel">
+  <!-- Tab: Transfer (admin) -->
+  <div id="at-transfer" class="tab-pane">
     <div class="card">
       <div class="card-title">↔️ Transfer Funds</div>
-      <form id="transfer-form" onsubmit="handleTransfer(event)">
-        <div class="form-grid cols-2">
-          <div class="form-group">
+      <form onsubmit="doAdminTransfer(event)">
+        <div class="grid2">
+          <div class="fg">
             <label>From Account</label>
-            <select id="from-account" required>
-              <option value="">— Select sender —</option>
-            </select>
+            <select id="tr-from" required><option value="">— Select sender —</option></select>
           </div>
-          <div class="form-group">
+          <div class="fg">
             <label>To Account</label>
-            <select id="to-account" required>
-              <option value="">— Select recipient —</option>
-            </select>
+            <select id="tr-to" required><option value="">— Select recipient —</option></select>
           </div>
         </div>
-        <div class="transfer-arrow">⬇️</div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Amount to Transfer ($)</label>
-            <input id="transfer-amount" type="number" min="0.01" step="0.01" placeholder="0.00" required />
-            <span class="hint">Must not exceed the sender's current balance</span>
-          </div>
+        <div class="t-arrow">⬇️</div>
+        <div class="fg">
+          <label>Amount ($)</label>
+          <input id="tr-amt" type="number" min="0.01" step="0.01" placeholder="0.00" required />
         </div>
-        <div style="margin-top:1.25rem; display:flex; gap:.75rem; align-items:center; flex-wrap:wrap;">
-          <button type="submit" class="btn btn-success">Transfer Funds</button>
-          <button type="button" class="btn btn-outline"
-                  onclick="document.getElementById('transfer-form').reset(); populateTransferDropdowns()">
-            Reset
-          </button>
-        </div>
-        <div id="transfer-alert" class="alert"></div>
+        <button type="submit" class="btn btn-success">Transfer Funds</button>
+        <div id="tr-alert" class="alert"></div>
       </form>
     </div>
+  </div>
 
-    <!-- Live balance preview -->
-    <div class="card" id="balance-preview" style="display:none">
-      <div class="card-title">💡 Current Balances</div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-        <div>
-          <div class="acc-card-label">Sender</div>
-          <div id="preview-from-name" style="font-weight:600; margin:.25rem 0;"></div>
-          <div id="preview-from-bal" class="acc-card-balance"></div>
+  <!-- Tab: Change Password -->
+  <div id="at-chpw" class="tab-pane">
+    <div class="card">
+      <div class="card-title">🔑 Change User Password</div>
+      <form onsubmit="doChangePassword(event)">
+        <div class="fg">
+          <label>Select Account</label>
+          <select id="cp-acc" required><option value="">— Select account —</option></select>
         </div>
-        <div>
-          <div class="acc-card-label">Recipient</div>
-          <div id="preview-to-name" style="font-weight:600; margin:.25rem 0;"></div>
-          <div id="preview-to-bal" class="acc-card-balance"></div>
+        <div class="fg">
+          <label>New Password</label>
+          <input id="cp-pw" type="password" placeholder="Enter new password" required />
         </div>
+        <div class="fg">
+          <label>Confirm Password</label>
+          <input id="cp-pw2" type="password" placeholder="Repeat new password" required />
+        </div>
+        <button type="submit" class="btn btn-accent">Update Password</button>
+        <div id="cp-alert" class="alert"></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ USER PANEL ═══════════════════════ -->
+<div id="user-panel" class="page">
+  <div class="section-head">
+    <div class="ic" style="background:#fef9e7;">💳</div>
+    <div>
+      <h2>My Account</h2>
+      <p>View balance and transfer funds</p>
+    </div>
+  </div>
+
+  <!-- Balance card -->
+  <div class="balance-card" id="balance-card">
+    <div class="bc-label">Account Holder</div>
+    <div class="bc-name"  id="bc-name">—</div>
+    <div class="bc-num"   id="bc-num">—</div>
+    <div class="bc-bal-label">Available Balance</div>
+    <div class="bc-balance" id="bc-bal">—</div>
+  </div>
+
+  <!-- Tabs for user -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="uTab('info')">📊 Account Info</button>
+    <button class="tab-btn"        onclick="uTab('send')">↗️ Send Money</button>
+  </div>
+
+  <!-- Tab: Account info -->
+  <div id="ut-info" class="tab-pane active">
+    <div class="card">
+      <div class="card-title">All Accounts
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="userLoadAll()">🔄 Refresh</button>
+      </div>
+      <div id="user-acc-grid" class="acc-grid">
+        <p style="color:var(--muted)">Loading…</p>
       </div>
     </div>
   </div>
-</div>
 
-<!-- ─────────────── ACCOUNT PANEL ─────────────── -->
-<div id="account-panel" class="page">
-  <button class="back-btn" onclick="showLanding()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-      <path d="M19 12H5M12 5l-7 7 7 7"/>
-    </svg>
-    Back to Home
-  </button>
-
-  <div class="section-heading">
-    <div class="icon-box" style="background:#fef9e7;">💳</div>
-    <div>
-      <h2>Account Panel</h2>
-      <p>Browse and search all registered accounts</p>
+  <!-- Tab: Send money -->
+  <div id="ut-send" class="tab-pane">
+    <div class="card">
+      <div class="card-title">↗️ Send Money</div>
+      <form onsubmit="doUserTransfer(event)">
+        <div class="fg">
+          <label>Recipient Account</label>
+          <select id="ut-to" required><option value="">— Select recipient —</option></select>
+        </div>
+        <div class="fg">
+          <label>Amount ($)</label>
+          <input id="ut-amt" type="number" min="0.01" step="0.01" placeholder="0.00" required />
+          <span class="hint" id="ut-bal-hint"></span>
+        </div>
+        <button type="submit" class="btn btn-success">Send Money</button>
+        <div id="ut-alert" class="alert"></div>
+      </form>
     </div>
   </div>
-
-  <div class="search-bar">
-    <input id="search-input" type="text" placeholder="🔍  Search by name or account number…"
-           oninput="filterAccounts()" />
-    <button class="btn btn-outline" onclick="refreshAccountPanel()">🔄 Refresh</button>
-  </div>
-
-  <div id="acc-cards-container" class="acc-cards">
-    <div class="loading-row" style="grid-column:1/-1"><div class="spinner"></div></div>
-  </div>
 </div>
 
-<footer>Bank Management System &nbsp;·&nbsp; C++ Backend + Vanilla JS Frontend &nbsp;·&nbsp; localhost:8080</footer>
-
-<!-- ─────────────── SCRIPTS ─────────────── -->
+<!-- ═══════════════════════════ SCRIPTS ══════════════════════════ -->
 <script>
-  /* ── State ── */
+  // ── State ──────────────────────────────────────────────────────────────────
+  let token       = null;
+  let role        = null;   // 'admin' | 'user'
+  let currentUser = null;   // account object for user sessions
   let allAccounts = [];
 
-  /* ── Navigation ── */
-  function showPanel(id) {
-    document.getElementById('landing').classList.remove('active');
+  // ── Navigation ─────────────────────────────────────────────────────────────
+  function showPage(id) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    if (id === 'admin-panel')   { refreshAccounts(); populateTransferDropdowns(); }
-    if (id === 'account-panel') { refreshAccountPanel(); }
   }
 
-  function showLanding() {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('landing').classList.add('active');
+  function setHeaderUser(label) {
+    const el = document.getElementById('header-user');
+    document.getElementById('header-badge').textContent = label;
+    el.style.display = label ? 'flex' : 'none';
   }
 
-  /* ── Tab switching ── */
-  function switchTab(panel, tab) {
-    const prefix = panel + '-tab-';
-    document.querySelectorAll(`#${panel}-panel .tab-panel`)
-            .forEach(p => p.classList.remove('active'));
-    document.querySelectorAll(`#${panel}-panel .tab-btn`)
-            .forEach(b => b.classList.remove('active'));
-
-    document.getElementById(prefix + tab).classList.add('active');
-    const tabs  = document.querySelectorAll(`#${panel}-panel .tab-btn`);
-    const order = (panel === 'admin') ? ['view','create','transfer'] : [];
-    const idx   = order.indexOf(tab);
-    if (idx >= 0) tabs[idx].classList.add('active');
-
-    if (tab === 'transfer') populateTransferDropdowns();
+  // ── Auth helpers ────────────────────────────────────────────────────────────
+  function authH() {
+    return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
   }
 
-  /* ── Fetch accounts ── */
-  async function fetchAccounts() {
-    const res  = await fetch('/accounts');
-    allAccounts = await res.json();
-    return allAccounts;
+  async function logout() {
+    if (token) {
+      try { await fetch('/logout', { method: 'POST', headers: authH() }); } catch {}
+    }
+    token = null; role = null; currentUser = null; allAccounts = [];
+    setHeaderUser('');
+    showPage('landing');
   }
 
-  /* ── Refresh admin table + stats ── */
-  async function refreshAccounts() {
-    const tbody = document.getElementById('accounts-table-body');
-    tbody.innerHTML = '<tr class="loading-row"><td colspan="4"><div class="spinner"></div></td></tr>';
+  // ── Alert helper ──────────────────────────────────────────────────────────
+  function showAlert(id, type, msg) {
+    const el = document.getElementById(id);
+    el.className = 'alert show ' + (type === 'ok' ? 'a-ok' : 'a-err');
+    el.textContent = msg;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), 5000);
+  }
 
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Admin Login ────────────────────────────────────────────────────────────
+  async function doAdminLogin(e) {
+    e.preventDefault();
+    const pw = document.getElementById('admin-pw').value;
     try {
-      await fetchAccounts();
-      updateAdminStats();
-      renderAdminTable();
+      const res  = await fetch('/login/admin', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw })
+      });
+      const data = await res.json();
+      if (data.status === 'ok') {
+        token = data.token; role = 'admin';
+        setHeaderUser('Admin');
+        document.getElementById('admin-pw').value = '';
+        showPage('admin-panel');
+        adminLoadAccounts();
+      } else {
+        showAlert('admin-login-alert', 'err', '❌ ' + data.message);
+      }
     } catch {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="4">⚠️ Unable to reach server</td></tr>';
+      showAlert('admin-login-alert', 'err', '❌ Network error – is the server running?');
     }
   }
 
-  function updateAdminStats() {
-    const total   = allAccounts.length;
-    const funds   = allAccounts.reduce((s, a) => s + a.balance, 0);
-    const avg     = total ? funds / total : 0;
-    document.getElementById('stat-total').textContent = total;
-    document.getElementById('stat-funds').textContent = '$' + funds.toFixed(2);
-    document.getElementById('stat-avg').textContent   = '$' + avg.toFixed(2);
+  // ── User Login ─────────────────────────────────────────────────────────────
+  async function doUserLogin(e) {
+    e.preventDefault();
+    const accNum = document.getElementById('user-acc-num').value.trim();
+    const pw     = document.getElementById('user-pw').value;
+    try {
+      const res  = await fetch('/login/user', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accountNumber: accNum, password: pw })
+      });
+      const data = await res.json();
+      if (data.status === 'ok') {
+        token = data.token; role = 'user'; currentUser = data.account;
+        setHeaderUser(currentUser.holderName);
+        document.getElementById('user-pw').value = '';
+        showPage('user-panel');
+        renderBalanceCard();
+        userLoadAll();
+      } else {
+        showAlert('user-login-alert', 'err', '❌ ' + data.message);
+      }
+    } catch {
+      showAlert('user-login-alert', 'err', '❌ Network error – is the server running?');
+    }
+  }
+
+  // ── Admin tab switching ────────────────────────────────────────────────────
+  const AT_ORDER = ['view','create','transfer','chpw'];
+  function aTab(name) {
+    document.querySelectorAll('#admin-panel .tab-btn').forEach((b,i) =>
+      b.classList.toggle('active', AT_ORDER[i] === name));
+    document.querySelectorAll('#admin-panel .tab-pane').forEach(p =>
+      p.classList.toggle('active', p.id === 'at-' + name));
+    if (name === 'transfer') populateAdminDropdowns();
+    if (name === 'chpw')     populateCpDropdown();
+  }
+
+  // ── User tab switching ─────────────────────────────────────────────────────
+  const UT_ORDER = ['info','send'];
+  function uTab(name) {
+    document.querySelectorAll('#user-panel .tab-btn').forEach((b,i) =>
+      b.classList.toggle('active', UT_ORDER[i] === name));
+    document.querySelectorAll('#user-panel .tab-pane').forEach(p =>
+      p.classList.toggle('active', p.id === 'ut-' + name));
+    if (name === 'send') populateUserDropdown();
+  }
+
+  // ── Load accounts (admin) ──────────────────────────────────────────────────
+  async function adminLoadAccounts() {
+    const tbody = document.getElementById('acc-tbody');
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Loading…</td></tr>';
+    try {
+      const res = await fetch('/accounts', { headers: authH() });
+      allAccounts = await res.json();
+      updateStats();
+      renderAdminTable();
+    } catch {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="4">⚠️ Failed to load</td></tr>';
+    }
+  }
+
+  function updateStats() {
+    const n = allAccounts.length;
+    const t = allAccounts.reduce((s,a) => s + a.balance, 0);
+    document.getElementById('st-count').textContent = n;
+    document.getElementById('st-funds').textContent = '$' + t.toFixed(2);
+    document.getElementById('st-avg').textContent   = '$' + (n ? (t/n).toFixed(2) : '0.00');
   }
 
   function renderAdminTable() {
-    const tbody = document.getElementById('accounts-table-body');
+    const tbody = document.getElementById('acc-tbody');
     if (!allAccounts.length) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="4">No accounts yet. Create one in the ➕ tab.</td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="4">No accounts yet.</td></tr>';
       return;
     }
-    tbody.innerHTML = allAccounts.map((a, i) => `
+    tbody.innerHTML = allAccounts.map((a,i) => `
       <tr>
-        <td style="color:var(--muted);font-size:.82rem">${i + 1}</td>
-        <td><span class="acc-badge">${esc(a.accountNumber)}</span></td>
+        <td style="color:var(--muted);font-size:.8rem">${i+1}</td>
+        <td><span class="tag">${esc(a.accountNumber)}</span></td>
         <td>${esc(a.holderName)}</td>
         <td>$${a.balance.toFixed(2)}</td>
       </tr>`).join('');
   }
 
-  /* ── Populate transfer dropdowns ── */
-  async function populateTransferDropdowns() {
+  // ── Populate dropdowns ─────────────────────────────────────────────────────
+  async function ensureAccounts() {
     if (!allAccounts.length) {
-      try { await fetchAccounts(); } catch { return; }
+      const res = await fetch('/accounts', { headers: authH() });
+      allAccounts = await res.json();
     }
+  }
 
-    const makeOptions = (excludeVal = '') =>
-      '<option value="">— Select —</option>' +
+  async function populateAdminDropdowns() {
+    await ensureAccounts();
+    const opts = () => '<option value="">— Select —</option>' +
       allAccounts.map(a =>
-        `<option value="${esc(a.accountNumber)}" ${a.accountNumber === excludeVal ? 'disabled' : ''}>
-          ${esc(a.accountNumber)} — ${esc(a.holderName)}  ($${a.balance.toFixed(2)})
-        </option>`
+        `<option value="${esc(a.accountNumber)}">${esc(a.accountNumber)} — ${esc(a.holderName)} ($${a.balance.toFixed(2)})</option>`
       ).join('');
-
-    document.getElementById('from-account').innerHTML = makeOptions();
-    document.getElementById('to-account').innerHTML   = makeOptions();
-
-    document.getElementById('from-account').addEventListener('change', updateBalancePreview);
-    document.getElementById('to-account').addEventListener('change', updateBalancePreview);
+    document.getElementById('tr-from').innerHTML = opts();
+    document.getElementById('tr-to').innerHTML   = opts();
   }
 
-  function updateBalancePreview() {
-    const fromVal = document.getElementById('from-account').value;
-    const toVal   = document.getElementById('to-account').value;
-    const preview = document.getElementById('balance-preview');
-
-    if (!fromVal && !toVal) { preview.style.display = 'none'; return; }
-    preview.style.display = 'block';
-
-    const fromAcc = allAccounts.find(a => a.accountNumber === fromVal);
-    const toAcc   = allAccounts.find(a => a.accountNumber === toVal);
-
-    document.getElementById('preview-from-name').textContent = fromAcc ? fromAcc.holderName : '—';
-    document.getElementById('preview-from-bal').textContent  = fromAcc ? '$' + fromAcc.balance.toFixed(2) : '—';
-    document.getElementById('preview-to-name').textContent   = toAcc   ? toAcc.holderName   : '—';
-    document.getElementById('preview-to-bal').textContent    = toAcc   ? '$' + toAcc.balance.toFixed(2)   : '—';
+  async function populateCpDropdown() {
+    await ensureAccounts();
+    document.getElementById('cp-acc').innerHTML =
+      '<option value="">— Select account —</option>' +
+      allAccounts.map(a =>
+        `<option value="${esc(a.accountNumber)}">${esc(a.accountNumber)} — ${esc(a.holderName)}</option>`
+      ).join('');
   }
 
-  /* ── Create account ── */
-  async function handleCreateAccount(e) {
+  async function populateUserDropdown() {
+    await ensureAccounts();
+    const others = allAccounts.filter(a => a.accountNumber !== currentUser.accountNumber);
+    document.getElementById('ut-to').innerHTML =
+      '<option value="">— Select recipient —</option>' +
+      others.map(a =>
+        `<option value="${esc(a.accountNumber)}">${esc(a.accountNumber)} — ${esc(a.holderName)}</option>`
+      ).join('');
+    document.getElementById('ut-bal-hint').textContent =
+      'Your balance: $' + currentUser.balance.toFixed(2);
+  }
+
+  // ── Create Account ─────────────────────────────────────────────────────────
+  async function doCreateAccount(e) {
     e.preventDefault();
-    const accNum  = document.getElementById('new-acc-num').value.trim();
-    const name    = document.getElementById('new-holder').value.trim();
-    const balance = parseFloat(document.getElementById('new-balance').value);
-
+    const body = {
+      accountNumber:  document.getElementById('ca-num').value.trim(),
+      holderName:     document.getElementById('ca-name').value.trim(),
+      initialBalance: parseFloat(document.getElementById('ca-bal').value),
+      password:       document.getElementById('ca-pw').value
+    };
     try {
-      const res  = await fetch('/create-account', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ accountNumber: accNum, holderName: name, initialBalance: balance })
-      });
+      const res  = await fetch('/create-account', { method:'POST', headers: authH(), body: JSON.stringify(body) });
       const data = await res.json();
-
       if (data.status === 'ok') {
-        showAlert('create-alert', 'success', '✅ ' + data.message);
-        document.getElementById('create-form').reset();
-        await refreshAccounts();
-        await populateTransferDropdowns();
+        showAlert('ca-alert', 'ok', '✅ ' + data.message);
+        ['ca-num','ca-name','ca-bal','ca-pw'].forEach(id => document.getElementById(id).value = '');
+        await adminLoadAccounts();
       } else {
-        showAlert('create-alert', 'error', '❌ ' + data.message);
+        showAlert('ca-alert', 'err', '❌ ' + data.message);
       }
-    } catch {
-      showAlert('create-alert', 'error', '❌ Network error – is the server running?');
-    }
+    } catch { showAlert('ca-alert', 'err', '❌ Network error'); }
   }
 
-  /* ── Transfer ── */
-  async function handleTransfer(e) {
+  // ── Admin Transfer ─────────────────────────────────────────────────────────
+  async function doAdminTransfer(e) {
     e.preventDefault();
-    const fromAcc = document.getElementById('from-account').value;
-    const toAcc   = document.getElementById('to-account').value;
-    const amount  = parseFloat(document.getElementById('transfer-amount').value);
-
-    if (fromAcc === toAcc) {
-      showAlert('transfer-alert', 'error', '❌ Sender and recipient cannot be the same account.');
-      return;
-    }
-
+    const from = document.getElementById('tr-from').value;
+    const to   = document.getElementById('tr-to').value;
+    const amt  = parseFloat(document.getElementById('tr-amt').value);
+    if (from === to) { showAlert('tr-alert','err','❌ Sender and recipient cannot be the same.'); return; }
     try {
-      const res  = await fetch('/transfer', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ fromAccount: fromAcc, toAccount: toAcc, amount })
-      });
+      const res  = await fetch('/transfer', { method:'POST', headers: authH(), body: JSON.stringify({ fromAccount:from, toAccount:to, amount:amt }) });
       const data = await res.json();
-
       if (data.status === 'ok') {
-        showAlert('transfer-alert', 'success', '✅ ' + data.message);
-        document.getElementById('transfer-form').reset();
-        await fetchAccounts();
-        updateAdminStats();
-        renderAdminTable();
-        await populateTransferDropdowns();
-        document.getElementById('balance-preview').style.display = 'none';
+        showAlert('tr-alert', 'ok', '✅ ' + data.message);
+        document.getElementById('tr-amt').value = '';
+        allAccounts = []; // invalidate cache
+        await adminLoadAccounts();
+        await populateAdminDropdowns();
       } else {
-        showAlert('transfer-alert', 'error', '❌ ' + data.message);
+        showAlert('tr-alert', 'err', '❌ ' + data.message);
       }
-    } catch {
-      showAlert('transfer-alert', 'error', '❌ Network error – is the server running?');
-    }
+    } catch { showAlert('tr-alert', 'err', '❌ Network error'); }
   }
 
-  /* ── Account panel ── */
-  async function refreshAccountPanel() {
-    const container = document.getElementById('acc-cards-container');
-    container.innerHTML = '<div class="loading-row" style="grid-column:1/-1"><div class="spinner"></div></div>';
+  // ── Change Password ────────────────────────────────────────────────────────
+  async function doChangePassword(e) {
+    e.preventDefault();
+    const accNum = document.getElementById('cp-acc').value;
+    const pw1    = document.getElementById('cp-pw').value;
+    const pw2    = document.getElementById('cp-pw2').value;
+    if (pw1 !== pw2) { showAlert('cp-alert','err','❌ Passwords do not match.'); return; }
     try {
-      await fetchAccounts();
-      renderAccCards(allAccounts);
+      const res  = await fetch('/change-password', { method:'POST', headers: authH(), body: JSON.stringify({ accountNumber:accNum, newPassword:pw1 }) });
+      const data = await res.json();
+      if (data.status === 'ok') {
+        showAlert('cp-alert', 'ok', '✅ ' + data.message);
+        document.getElementById('cp-pw').value  = '';
+        document.getElementById('cp-pw2').value = '';
+        document.getElementById('cp-acc').value = '';
+      } else {
+        showAlert('cp-alert', 'err', '❌ ' + data.message);
+      }
+    } catch { showAlert('cp-alert', 'err', '❌ Network error'); }
+  }
+
+  // ── User panel ─────────────────────────────────────────────────────────────
+  function renderBalanceCard() {
+    document.getElementById('bc-name').textContent = currentUser.holderName;
+    document.getElementById('bc-num').textContent  = currentUser.accountNumber;
+    document.getElementById('bc-bal').textContent  = '$' + currentUser.balance.toFixed(2);
+  }
+
+  async function refreshMyAccount() {
+    try {
+      const res = await fetch('/my-account', { headers: authH() });
+      currentUser = await res.json();
+      renderBalanceCard();
+    } catch {}
+  }
+
+  async function userLoadAll() {
+    const grid = document.getElementById('user-acc-grid');
+    grid.innerHTML = '<p style="color:var(--muted)">Loading…</p>';
+    try {
+      const res = await fetch('/accounts', { headers: authH() });
+      allAccounts = await res.json();
+      if (!allAccounts.length) { grid.innerHTML = '<p style="color:var(--muted)">No accounts found.</p>'; return; }
+      grid.innerHTML = allAccounts.map(a => `
+        <div class="ac ${a.accountNumber === currentUser.accountNumber ? 'ac-self' : ''}"
+             style="${a.accountNumber === currentUser.accountNumber ? 'border-color:var(--accent);' : ''}">
+          <div class="ac-num">${esc(a.accountNumber)}</div>
+          <div class="ac-name">${esc(a.holderName)}${a.accountNumber === currentUser.accountNumber ? ' <span style="color:var(--accent);font-size:.75rem">(you)</span>' : ''}</div>
+          <div class="ac-bl">Balance</div>
+          <div class="ac-bal">$${a.balance.toFixed(2)}</div>
+        </div>`).join('');
     } catch {
-      container.innerHTML = '<p style="color:var(--red);padding:1rem">⚠️ Unable to reach server.</p>';
+      grid.innerHTML = '<p style="color:var(--red)">⚠️ Failed to load</p>';
     }
   }
 
-  function filterAccounts() {
-    const q = document.getElementById('search-input').value.toLowerCase();
-    const filtered = allAccounts.filter(a =>
-      a.holderName.toLowerCase().includes(q) ||
-      a.accountNumber.toLowerCase().includes(q)
-    );
-    renderAccCards(filtered);
-  }
-
-  function renderAccCards(list) {
-    const container = document.getElementById('acc-cards-container');
-    if (!list.length) {
-      container.innerHTML = '<p style="color:var(--muted);padding:1rem;grid-column:1/-1">No matching accounts found.</p>';
-      return;
-    }
-    container.innerHTML = list.map(a => `
-      <div class="acc-card">
-        <div class="acc-card-top">
-          <span class="acc-card-num">${esc(a.accountNumber)}</span>
-        </div>
-        <div class="acc-card-name">${esc(a.holderName)}</div>
-        <div class="acc-card-label">Current Balance</div>
-        <div class="acc-card-balance">$${a.balance.toFixed(2)}</div>
-      </div>`).join('');
-  }
-
-  /* ── Helpers ── */
-  function showAlert(id, type, msg) {
-    const el = document.getElementById(id);
-    el.className = 'alert alert-' + type + ' show';
-    el.textContent = msg;
-    setTimeout(() => { el.classList.remove('show'); }, 5000);
-  }
-
-  function esc(str) {
-    return String(str)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  async function doUserTransfer(e) {
+    e.preventDefault();
+    const to  = document.getElementById('ut-to').value;
+    const amt = parseFloat(document.getElementById('ut-amt').value);
+    try {
+      const res  = await fetch('/user-transfer', { method:'POST', headers: authH(), body: JSON.stringify({ toAccount:to, amount:amt }) });
+      const data = await res.json();
+      if (data.status === 'ok') {
+        showAlert('ut-alert', 'ok', '✅ ' + data.message);
+        document.getElementById('ut-amt').value = '';
+        allAccounts = []; // invalidate cache
+        await refreshMyAccount();
+        await userLoadAll();
+        document.getElementById('ut-bal-hint').textContent = 'Your balance: $' + currentUser.balance.toFixed(2);
+      } else {
+        showAlert('ut-alert', 'err', '❌ ' + data.message);
+      }
+    } catch { showAlert('ut-alert', 'err', '❌ Network error'); }
   }
 </script>
-
 </body>
 </html>

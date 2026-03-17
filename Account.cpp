@@ -2,12 +2,19 @@
 #include <sstream>
 #include <iomanip>
 
-Account::Account(const std::string& accNum, const std::string& name, double initialBalance)
-    : accountNumber(accNum), holderName(name), balance(initialBalance) {}
+Account::Account(const std::string& accNum,
+                 const std::string& name,
+                 double             initialBalance,
+                 const std::string& password)
+    : accountNumber(accNum), holderName(name),
+      balance(initialBalance), password(password) {}
 
 std::string Account::getAccountNumber() const { return accountNumber; }
 std::string Account::getHolderName()    const { return holderName; }
-double       Account::getBalance()       const { return balance; }
+double      Account::getBalance()       const { return balance; }
+std::string Account::getPassword()      const { return password; }
+
+void Account::setPassword(const std::string& newPass) { password = newPass; }
 
 void Account::deposit(double amount) {
     if (amount > 0) balance += amount;
